@@ -24,24 +24,32 @@ module.exports = async (bot, ctx, result, convert) => {
 
     if(result?.license) text += `\n\n<b>License : ${result?.license}</b>`
 
+    if(result._type === 'playlist') {
+        text += `\n\n<b>${result.playlist_count + (result.playlist_count === 50 ? '+' : '')}</b>`
+        text += `\n\n<b>⚠ Warning : the link provided is a playlist link, this bot cannot convert a full playlist.</b>`
+        text += `\nIf you think that your link is not a playlist link, please use the original shareable link, without extra parameters`
+    }
+
+    text += `\n\n➡ /convert another link`
+
     await ctx.telegram.sendMessage(ctx.chat.id, text, {
         parse_mode: 'html',
         disable_web_page_preview: true,
         reply_markup: JSON.stringify({
-            inline_keyboard: [
+            inline_keyboard: result._type === 'playlist' ? [] : [
                 ...(result?.description ? [[{ text: 'View full description', callback_data: 'description' }]] : []),
                 [{ text: `Download medias`, callback_data: 'downloads' }],
-                [{ text: `Download thumbnails`, callback_data: 'thumbnails' }],
-                [{ text: `Convert another link`, callback_data: 'again' }]
+                [{ text: `Download thumbnails`, callback_data: 'thumbnails' }]
             ]
         })
     })
 
-    await bot.action('again', async ctx => {
+    /*await bot.action('again', async ctx => {
         if(typeof convert === 'function') {
+            result = null
             return await convert(ctx)
         }
-    })
+    })*/
 
     await bot.action('description', async ctx => {
         ctx.editMessageText(result?.description, {

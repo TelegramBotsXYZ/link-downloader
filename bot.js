@@ -27,7 +27,9 @@ const convert = ctx => {
                 noCheckCertificates: true,
                 noWarnings: true,
                 preferFreeFormats: true,
-                addHeader: [ 'referer:youtube.com', 'user-agent:googlebot' ]
+                addHeader: [ 'referer:youtube.com', 'user-agent:googlebot' ],
+                flatPlaylist: true,
+                playlistItems: 10
             })
         } catch (e) {
             console.error(e)
@@ -48,10 +50,13 @@ bot.command('/convert', convert)
 bot.launch().catch(console.error)
 
 bot.catch(async ctx => {
-    await bot.telegram.sendMessage(ctx.on?.payload?.chat_id, ctx.response?.description || 'An error occurred')
-    await bot.telegram.sendMessage(ctx.on?.payload?.chat_id, `<a href="${ctx.on?.payload?.document || ''}">Direct URL</a>`, {
-        parse_mode: 'html'
-    })
+    if(ctx.response?.description) console.error(ctx.response?.description)
+    if(ctx.on?.payload?.chat_id) {
+        await bot.telegram.sendMessage(ctx.on?.payload?.chat_id, ctx.response?.description || 'An error occurred')
+        await bot.telegram.sendMessage(ctx.on?.payload?.chat_id, `<a href="${ctx.on?.payload?.document || ''}">Direct URL</a>`, {
+            parse_mode: 'html'
+        })
+    }
 })
 
 process.once('SIGINT', () => bot.stop('SIGINT'))

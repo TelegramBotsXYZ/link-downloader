@@ -1,13 +1,19 @@
 module.exports = async (bot, ctx, result, back) => {
     let inline_keyboard = []
 
-    for(let t in result.thumbnails) {
-        const thumb = result.thumbnails[t]
-        inline_keyboard.push([{
-            text: `${thumb.id} ${thumb.resolution ? `(${thumb.resolution})` : ''}`,
-            callback_data: `thumb_${thumb.id}`
-        }])
+    const groupSize = 4
+    for (let t = 0; t < result.thumbnails.length; t += groupSize) {
+        const group = [];
+        for (let j = 0; j < groupSize && t + j < result.thumbnails.length; j++) {
+            const thumb = result.thumbnails[t + j];
+            group.push({
+                text: `${thumb.preference === 0 ? '✅ ' : ''}${thumb.id} ${thumb.resolution ? `(${thumb.resolution})` : ''}`,
+                callback_data: `thumb_${thumb.id}`
+            });
+        }
+        inline_keyboard.push(group);
     }
+
     inline_keyboard.push([{ text: `Back`, callback_data: 'back' }])
 
     await ctx.deleteMessage()
