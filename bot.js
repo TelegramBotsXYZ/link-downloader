@@ -2,7 +2,6 @@ require('dotenv').config()
 const youtubedl = require('youtube-dl-exec')
 const { Telegraf } = require('telegraf')
 const mainMenu = require('./menus/main')
-const thumbnailsMenu = require('./menus/thumbnails')
 
 const bot = new Telegraf(process.env.BOT_TOKEN)
 
@@ -46,7 +45,7 @@ const convert = ctx => {
 
 bot.command('/convert', convert)
 
-bot.launch()
+bot.launch().catch(console.error)
 
 bot.catch(async ctx => {
     await bot.telegram.sendMessage(ctx.on?.payload?.chat_id, ctx.response?.description || 'An error occurred')
